@@ -1,0 +1,87 @@
+:root {
+  color: #1a1a1a;
+  background: #ffffff;
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+body {
+  margin: 0;
+}
+
+.sheet {
+  max-width: 40rem;
+  margin: 0;
+  padding: 1.5rem 1.75rem 3rem;
+}
+
+nav {
+  display: flex;
+  gap: 1.25rem;
+  border-bottom: 1px solid #1a1a1a;
+  padding-bottom: 0.6rem;
+  margin-bottom: 1.5rem;
+}
+
+a {
+  color: #9f1d1d;
+}
+
+h1 {
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin: 0 0 0.8rem;
+}
+
+h2 {
+  font-size: 1.1rem;
+  margin: 1.4rem 0 0.4rem;
+}
+
+form {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 22rem;
+}
+
+label {
+  display: grid;
+  gap: 0.25rem;
+}
+
+input {
+  font: inherit;
+  border: 1px solid #1a1a1a;
+  padding: 0.35rem 0.45rem;
+  background: #fff;
+}
+
+button {
+  font: inherit;
+  width: fit-content;
+  border: 1px solid #1a1a1a;
+  background: #1a1a1a;
+  color: #fff;
+  padding: 0.35rem 0.7rem;
+}
+
+.tracks {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0;
+}
+
+.tracks li {
+  border-top: 1px solid #ddd;
+  padding: 0.45rem 0;
+}
+
+.error {
+  color: #9f1d1d;
+}
+
+audio {
+  width: 100%;
+  margin-top: 0.5rem;
+}
