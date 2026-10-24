@@ -2,7 +2,7 @@
 
 Date: 2026-10-24
 
-Read this file first. It is the current picture of the project for a person who was not in the build.
+The GitHub front page is `README.md`. This file is the longer manual: what the system does, what is already finished, and what is left.
 
 `docs/PLAN.md` is the original task list. Its checkboxes were never ticked. Do not treat an empty checkbox as unfinished work. `docs/updates/003-install-status.md` says the Spark jobs had not been run. That was true on 2026-09-26 and is no longer true. This guide wins on the current state.
 
@@ -16,7 +16,7 @@ Spark does the heavy work once, offline, and writes tables. The website never st
 
 V1 is search, playback, 20 precomputed neighbors, and a history-based list. Mood playlists, a genre picker at signup, cover art, charts, and a playlist editor are out of scope. Do not show a mood label on a track. Do not call Spotify. Do not use `data/raw/fma_metadata/features.csv` as model input. That file is in the download for comparison only.
 
-The working brief is `docs/PLAN.md`. The PDF spec is `de_an_music_recommendation_spark.pdf` at the repo root. Later decisions are `docs/updates/001-vector-dim.md` (the vector is 36 floats, not 35), `002-full-medium.md` (keep all of FMA medium, no 12,000 cap), and `003-install-status.md` (where the files and JDK 17 are).
+The working brief is `docs/PLAN.md`. Later decisions are `docs/updates/001-vector-dim.md` (the vector is 36 floats, not 35), `002-full-medium.md` (keep all of FMA medium, no 12,000 cap), and `003-install-status.md` (where the files and JDK 17 are).
 
 ## What was built
 
@@ -60,7 +60,7 @@ Measured on the real medium set, 2026-09-26:
 | arousal Pearson vs Echo Nest energy | 0.41 |
 | valence Pearson vs Echo Nest valence | 0.15 |
 
-`pytest` from `music-recommendation/` passed: 17 tests. Those tests use tiny fixtures and do not need the FMA files.
+`pytest` from the repo root passed: 17 tests. Those tests use tiny fixtures and do not need the FMA files.
 
 A logged-in browser session has searched, played a clip, seen 20 neighbors, and seen a For you list that omitted the played track.
 
@@ -174,7 +174,7 @@ export MUSICREC_JWT_SECRET=dev-secret
 .venv/bin/uvicorn api.main:app --host 127.0.0.1 --port 8000
 ```
 
-Start the site from `music-recommendation/web/`:
+Start the site from `web/`:
 
 ```bash
 npm run dev -- --host 127.0.0.1 --port 5173
@@ -190,13 +190,11 @@ Then:
 4. The track page plays the clip and lists Similar. Similar is the stored neighbor list, not a new search.
 5. Open For you. The track just played should be absent. With no plays, For you is the 20 lowest track ids.
 
-Both servers were stopped on 2026-09-27. Start them again before a demo. The first API start after a reboot loads about 25,000 rows into memory. Wait until the log says the application has started.
-
-Accounts already created on this machine stay in `data/app.db`. One of them is `listener1` from a local test. Create a new user if you do not know that password.
+The first API start loads about 25,000 rows into memory. Wait until the log says the application has started. Register a new account on a new machine. `data/app.db` is local and is not in git.
 
 ## How to run the tests
 
-From `music-recommendation/`:
+From the repo root:
 
 ```bash
 PYTHONPATH=src .venv/bin/pytest -q
@@ -207,6 +205,7 @@ Numba, which librosa uses, cannot write its cache inside a sandbox. Run this on 
 ## Files worth knowing
 
 ```
+README.md                    GitHub front page
 docs/PLAN.md                 original task list, checkboxes are stale
 docs/updates/001-vector-dim.md
 docs/updates/002-full-medium.md
