@@ -3,12 +3,17 @@ import librosa
 import librosa.feature.rhythm as rhythm
 
 N_MFCC = 20
+N_CHROMA = 12
 SCALARS = ["spectral_centroid", "spectral_rolloff", "spectral_bandwidth",
            "energy", "zcr"]
 
 
 def _load_middle(path, sr, duration):
-    total = librosa.get_duration(path=path)
+    # Bản librosa mới dùng path=, bản cũ dùng filename=
+    try:
+        total = librosa.get_duration(path=path)
+    except TypeError:
+        total = librosa.get_duration(filename=path)
     offset = max(0.0, total / 2 - duration / 2)
     y, sr = librosa.load(path, sr=sr, mono=True, offset=offset, duration=duration)
     return y, sr
@@ -32,7 +37,7 @@ def extract_track(path, sr=22050, duration=30.0):
         "mfcc_std": mfcc.std(axis=1).tolist(),
         "chroma": chroma.mean(axis=1).tolist(),
         "chroma_std": chroma.std(axis=1).tolist(),
-        "tempo": float(rhythm.tempo(y=y, sr=sr)[0]),
+        "tempo": float(np.atleast_1d(rhythm.tempo(y=y, sr=sr))[0]),
     }
     for name, mat in zip(SCALARS, [centroid, rolloff, bandwidth, energy, zcr]):
         out[name] = float(mat.mean())
@@ -43,8 +48,8 @@ def extract_track(path, sr=22050, duration=30.0):
 def feature_names():
     names = [f"mfcc{i+1}" for i in range(N_MFCC)]
     names += [f"mfcc{i+1}_std" for i in range(N_MFCC)]
-    names += [f"chroma{i+1}" for i in range(12)]
-    names += [f"chroma{i+1}_std" for i in range(12)]
+    names += [f"chroma{i+1}" for i in range(N_CHROMA)]
+    names += [f"chroma{i+1}_std" for i in range(N_CHROMA)]
     names += ["tempo"]
     for s in SCALARS:
         names += [s, s + "_std"]
@@ -61,3 +66,16 @@ def raw_vector(row):
     if not np.all(np.isfinite(vec)):
         raise ValueError("Vector có NaN/Inf")
     return vec
+
+
+def scalar_columns(raw_series):
+    """Từ cột 'raw' (list 75 số) lấy lại tempo, energy, spectral_centroid, zcr.
+
+    Giá trị trả về là giá trị thô, chưa chuẩn hóa, dùng cho mood.scores().
+    """
+    import pandas as pd
+
+    names = feature_names()
+    idx = {n: names.index(n) for n in ("tempo", "energy", "spectral_centroid", "zcr")}
+    raw = pd.DataFrame(list(raw_series), index=raw_series.index)
+    return pd.DataFrame({name: raw[i] for name, i in idx.items()})
