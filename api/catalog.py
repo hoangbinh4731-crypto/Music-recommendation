@@ -42,11 +42,12 @@ class Catalog:
             neighbor_rows = pd.DataFrame(columns=["track_id", "neighbor_ids", "neighbor_distances"])
         vectors = {}
         if features_path.exists():
-            features = pd.read_parquet(features_path)
-            column = "vector" if "vector" in features.columns else None
-            if column:
-                for row in features.itertuples(index=False):
-                    vectors[int(row.track_id)] = list(getattr(row, column))
+            # Chỉ đọc 2 cột cần thiết, bỏ raw / raw_features / features cho nhẹ RAM
+            features = pd.read_parquet(features_path, columns=["track_id", "vector"])
+            vectors = {
+                int(track_id): list(vector)
+                for track_id, vector in zip(features["track_id"], features["vector"])
+            }
         return cls(tracks, neighbor_rows, vectors)
 
     def search(self, query, limit=20):
