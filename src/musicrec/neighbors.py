@@ -1,9 +1,11 @@
+import numpy as np
 import pandas as pd
 
 
 def top_n_from_pairs(pairs, top_n):
     frame = pairs.loc[pairs["track_id"] != pairs["neighbor_id"]].copy()
     frame = frame.sort_values(["track_id", "distance", "neighbor_id"])
+    frame = frame.drop_duplicates(["track_id", "neighbor_id"], keep="first")
     rows = []
     for track_id, group in frame.groupby("track_id", sort=True):
         head = group.head(top_n)
@@ -18,36 +20,36 @@ def top_n_from_pairs(pairs, top_n):
 
 
 def fill_short_lists(neighbors, features, top_n, min_count=5):
-    import numpy as np
+    track_ids = np.array([int(v) for v in features["track_id"]], dtype=np.int64)
+    matrix = np.vstack([np.asarray(v, dtype=float) for v in features["vector"]])
+    order = np.argsort(track_ids)
+    track_ids = track_ids[order]
+    matrix = matrix[order]
 
-    vectors = {
-        int(row.track_id): np.asarray(row.vector, dtype=float)
-        for row in features.itertuples(index=False)
-    }
     current = {}
     for row in neighbors.itertuples(index=False):
         current[int(row.track_id)] = (
-            [int(value) for value in row.neighbor_ids],
-            [float(value) for value in row.neighbor_distances],
+            [int(v) for v in row.neighbor_ids],
+            [float(v) for v in row.neighbor_distances],
         )
+
     rows = []
-    for track_id in sorted(vectors):
+    for i, track_id in enumerate(track_ids):
+        track_id = int(track_id)
         ids, dists = current.get(track_id, ([], []))
         ids = list(ids)
         dists = list(dists)
         if len(ids) < min_count:
-            origin = vectors[track_id]
-            ranked = []
-            for other_id, vec in vectors.items():
-                if other_id == track_id or other_id in ids:
-                    continue
-                ranked.append((float(np.linalg.norm(origin - vec)), other_id))
-            ranked.sort()
-            for dist, other_id in ranked:
+            d = np.linalg.norm(matrix - matrix[i], axis=1)
+            exclude = np.isin(track_ids, ids)
+            exclude[i] = True
+            cand = np.flatnonzero(~exclude)
+            ranked = cand[np.lexsort((track_ids[cand], d[cand]))]
+            for j in ranked:
                 if len(ids) >= top_n:
                     break
-                ids.append(other_id)
-                dists.append(dist)
+                ids.append(int(track_ids[j]))
+                dists.append(float(d[j]))
         rows.append(
             {
                 "track_id": track_id,
