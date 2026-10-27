@@ -16,7 +16,6 @@ RAW_SCHEMA = StructType(
     ]
 )
 
-
 def extract_batches(iterator):
     from musicrec.features import extract_track, raw_vector
 
