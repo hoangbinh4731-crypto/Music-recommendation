@@ -1,6 +1,6 @@
 # Music recommendation
 
-A local content-based recommender for the [Free Music Archive](https://github.com/mdeff/fma) medium set. Spark turns each clip into a 36-number audio vector and stores the 20 nearest tracks. The website only reads those tables. A click does not start Spark.
+A local content-based recommender for the [Free Music Archive](https://github.com/mdeff/fma) medium set. Spark turns each clip into a 75-number audio vector and stores the 20 nearest tracks. The website only reads those tables. A click does not start Spark.
 
 Search matches a title or an artist name. Similar is the stored neighbor list. For you mixes the vectors of tracks you have played and skips those tracks.
 
@@ -60,7 +60,9 @@ Path('data/raw/medium_ids.csv').write_text('\n'.join(map(str, ids)) + '\n')
 .venv/bin/python jobs/run_eval_mood.py
 ```
 
-A copy of `data/processed/` (about 37MB) skips the four jobs. Playback still needs the mp3 files.
+Run `run_neighbors.py` again after every `run_extract.py`. To time it on a different number of cores, pass the Spark master as the first argument, for example `.venv/bin/python jobs/run_neighbors.py "local[4]"`. `run_extract.py` prints `dim` at the end and it must be 75.
+
+A copy of `data/processed/` skips the four jobs (about 37MB for the older 36-number tables, larger for 75). Its vectors must have 75 values to match the code. Playback still needs the mp3 files.
 
 ## Run
 
@@ -92,7 +94,7 @@ From the repository root, outside a sandbox:
 PYTHONPATH=src .venv/bin/pytest -q
 ```
 
-Expected: 17 passed. The tests do not need the FMA download.
+Expected: 21 passed. The tests do not need the FMA download.
 
 ## Docs
 
@@ -100,7 +102,7 @@ Expected: 17 passed. The tests do not need the FMA download.
 |---|---|
 | [docs/GUIDE.md](docs/GUIDE.md) | Full picture: idea, what is done, what is left, how similarity is defined |
 | [docs/PLAN.md](docs/PLAN.md) | Original task list. Empty checkboxes are stale |
-| [docs/updates/](docs/updates/) | Decisions after the plan: vector length 36, full medium set, data already built |
+| [docs/updates/](docs/updates/) | Decisions after the plan: vector length (36, then 75), full medium set, data already built |
 
 ## Out of scope
 
