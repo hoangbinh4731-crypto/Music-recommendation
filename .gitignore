@@ -4,3 +4,6 @@ __pycache__/
 web/node_modules/
 web/dist/
 .pytest_cache/
+.env
+*.pyc
+extract_log.txt

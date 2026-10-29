@@ -2,22 +2,32 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { api } from "../api";
 
-export default function Login() {
+export default function Login({ onLogin }) {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
+  console.log("[DEBUG] Login rendered, onLogin =", typeof onLogin);
+
   async function onSubmit(event) {
     event.preventDefault();
     setError("");
+    console.log("[DEBUG] submit clicked");
     try {
-      await api("/auth/login", {
+      const result = await api("/auth/login", {
         method: "POST",
         body: JSON.stringify({ username, password }),
       });
-      navigate("/");
+      console.log("[DEBUG] login ok, response =", result, "| onLogin =", typeof onLogin);
+      if (typeof onLogin === "function") {
+        onLogin();
+      } else {
+        console.error("[DEBUG] onLogin is missing!");
+      }
+      navigate("/", { replace: true });
     } catch (err) {
+      console.error("[DEBUG] login error:", err);
       setError(err.message);
     }
   }
